@@ -26,7 +26,7 @@ int main (int argc, char** argv){
 
 	while ((read = getline(&line, &len, f))!= -1){
 		printf("line was %s\n", line);
-		
+
 	}
 
 	free(line);
@@ -35,15 +35,6 @@ int main (int argc, char** argv){
     printf("testing if map is empty %d\n",h->is_empty(h) );
 	h->insert(h, "swag");
 	h->insert(h, "fjfjf");
-	h->insert(h, "gay");
-	h->insert(h, "gay");
-
-	int i = h->lookup(h, "gay");
-	printf("%d\n",i );
-	i = h->lookup(h, "poop");
-	printf("%d\n",i );
-	
-	h->del(h, "swag");
 	int y = h->lookup(h, "swag");
 	printf("we want this to be 0 %d\n",y );
 	h->destroy(h);
