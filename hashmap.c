@@ -84,10 +84,13 @@ static long bit_hash(char* string, long n ){
 
 static long hash_string(char* string, long n){
 	unsigned long index = 0;
+	//printf("n is %ld", n);
 	long i;
+	/*check hash function*/
 	for(i=0; string[i] != '\0'; i++){
-		index = shift * index * (long)string[i];
+		index = shift * index + (long)string[i];
 	}
+	//printf("Index is %ld\n",index%n);
 	return index % n;
 
 }
@@ -103,6 +106,7 @@ static node* create_node(char* string){
 	return n;
 }
 
+/* TODOcalling twice sometimes, pass a pointer to index*/
 static node* map_search(mapdata* map, char* string){
 	long index = hash_string(string, map->capacity);
 	node* n ;
@@ -247,13 +251,15 @@ static long map_coll(const Hashmap* h){
 	mapdata* map = (mapdata*)h->self;
 	long collisions = 0l;
 	long i;
+	/*returning size, check n->next for null*/
 	for(i = 0; i < map->capacity; i++){
 		node* n = map->storearray[i];
 		/*if there is item*/
 		while(n != NULL){
 			node* nxt = n->next;
 			n = nxt;
-			collisions++;
+			if(n != NULL)
+				collisions++;
 		}
 	}
 	return collisions;

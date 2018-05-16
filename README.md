@@ -10,6 +10,7 @@ I plan on examining common hashing techniques and running an analysis on 'ease o
 
 This test will be implemented in C for the hashtable and hash function. Although there are multiple ways to implement a hash table, the only table I will use for this experiment is [hashing with chaining](https://en.wikipedia.org/wiki/Hash_table#Separate_chaining_with_linked_lists)
 
+I will be using a variety of machines to collect the data, one being a Raspberry pi with a ARM processor, the others being AMD or Intell processors running x86 instruction set. 
 
 ## Data Collection Process
 
