@@ -22,6 +22,8 @@ struct Hashmap{
 	int (*del)(const Hashmap* h, char* string);
 
 	long (*collisions)(const Hashmap* h);
+
+
 };
 
 #endif

@@ -44,7 +44,7 @@ static unsigned char PseudoRandomHash[256] = {
     140,  36,  210, 172,  41,  54,  159,   8, 185, 232, 113, 196, 231,  47, 146,  120, 
      51,  65,   28, 144, 254, 221,   93, 189, 194, 139, 112,  43,  71, 109, 184,  209}; 
 
-static int prime_array[46] = { 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 
+int prime_array[46] = { 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 
 	43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 
 	109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 
 	181, 191, 193, 197, 199};
@@ -106,37 +106,36 @@ static node* create_node(char* string){
 	return n;
 }
 
-/* TODOcalling twice sometimes, pass a pointer to index*/
-static node* map_search(mapdata* map, char* string){
+static node* map_search_2(mapdata* map, char* string, long* i){
 	long index = hash_string(string, map->capacity);
+	*i = index;
 	node* n ;
 	for (n = map->storearray[index]; n!= NULL; n=n->next)
 		if(strcmp(string , n->key) == 0){
 			return n;
 		}
-	return n;
+	return n;	
 }
 
 static int map_lookup(const Hashmap* h, char* string){
 	int status = 0;
+	long s = 0;
 	/*lookup node using map search*/
-	node* n = map_search((mapdata*)h->self, string);
+	node* n = map_search_2((mapdata*)h->self, string, &s);
 	if(n == NULL)
 		return status;
-	status = 1;
-	return status;
+	return status =(int)s;
 }
 
 
 static int map_remove(const Hashmap* h, char* string){
 	int status = 0;
 	mapdata* map = (mapdata*) h->self;
+	long index;
 	/*double check to ensure entry is in map*/
-	node* n = map_search(map, string);
+	node* n = map_search_2(map, string, &index);
 	if(n == NULL)
 		return status;
-
-	long index = hash_string(string , map->capacity);
 	node* c;
 	node* t;
 	for(t = NULL, c = map->storearray[index]; c != n ; t = c ,c=c->next)
@@ -152,8 +151,6 @@ static int map_remove(const Hashmap* h, char* string){
 	status =1;
 	return status;
 }
-
-
 
 /*helper function to resize hashmap when current items * loadfactor == size*/
 static int map_resize(mapdata* map){
@@ -172,7 +169,6 @@ static int map_resize(mapdata* map){
 			while(n != NULL){
 			node* nxt = n->next;
 			index  = hash_string(n->key , s);
-
 			n->next = newarr[index];
 			newarr[index] = n;
 			n = nxt;
@@ -189,32 +185,27 @@ static int map_resize(mapdata* map){
 	return status;
 }
 
+/*change to take function pointer array as last argument*/
 static int map_insert(const Hashmap* h, char* string){
 	int status = 0;
 	mapdata* map = (mapdata*)h->self;
-	node* n = NULL;
-	/*check threshold and resize as needed */
-	if(map->size >= map->threshold)
+	if(map->size > map->threshold)
 		(void)map_resize(map);
-	/*in future do error handling for not enough memory etc, but for now
-	dont care about return value of resize*/
-	n = map_search(map, string);
-	if (n != NULL){
+
+	long index;
+	node* n = map_search_2(map, string, &index);
+	if( n != NULL){
 		n->count++;
-		//printf("count is %d\n",n->count );
 		status = 1;
-		return status;
 	} else {
 		n = create_node(string);
 	}
-	/*create node with given payload*/
-	if (n == NULL) 
-		return status;
-	long index = hash_string(string, map->capacity);
-	n->next = map->storearray[index];
-	map->storearray[index] = n;
-	map->size++;
-	status =1;
+	if(n != NULL){
+		status = 1;
+		n->next = map->storearray[index];
+		map->storearray[index] = n;
+		map->size++;
+	}
 	return status;
 }
 
@@ -249,21 +240,16 @@ static int map_is_empty(const Hashmap* h){
 
 static long map_coll(const Hashmap* h){
 	mapdata* map = (mapdata*)h->self;
-	long collisions = 0l;
-	long i;
-	/*returning size, check n->next for null*/
-	for(i = 0; i < map->capacity; i++){
+	long occupied = 0l;
+	long i = 0;
+	for(i; i < map->capacity; i++){
 		node* n = map->storearray[i];
-		/*if there is item*/
-		while(n != NULL){
-			node* nxt = n->next;
-			n = nxt;
-			if(n != NULL)
-				collisions++;
-		}
+		if( n != NULL)
+			occupied++;
 	}
-	return collisions;
+	return map->size - occupied;
 }
+
 
 const Hashmap* create_hashmap(long capacity){
 	Hashmap* hmap = (Hashmap*)malloc(sizeof(Hashmap));
@@ -296,6 +282,11 @@ const Hashmap* create_hashmap(long capacity){
 				hmap->is_empty = map_is_empty;
 				hmap->del = map_remove;
 				hmap->collisions = map_coll;
+				//hmap->prime_insert_test = map_insert_prime_test;
+				/*hashmap test functions*/
+				//hmap->prime_insert_test = map_insert_product;
+
+
 			/*node array malloc failed*/
 			} else {
 				free(map); free(hmap);
