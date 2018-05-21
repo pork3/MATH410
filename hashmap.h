@@ -1,9 +1,9 @@
-#ifndef _HASHMAP_H_
-#define _HASHMAP_H_
+#ifndef _INCLUDED_HASHMAP_H_
+#define _INCLUDED_HASHMAP_H_
 
 typedef struct Hashmap Hashmap;
 
-const Hashmap* create_hashmap(long capacity);
+const Hashmap* create_hashmap(long capacity, int h_func,int prime);
 
 struct Hashmap{
 
@@ -22,6 +22,8 @@ struct Hashmap{
 	int (*del)(const Hashmap* h, char* string);
 
 	long (*collisions)(const Hashmap* h);
+
+	int (*insert_prime)(const Hashmap* h, char* string,int prime);
 
 
 };

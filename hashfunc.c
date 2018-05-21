@@ -1,17 +1,14 @@
 #include "hashfunc.h"
 
-#define NUMBER_OF_FUNC 4 
-
-typedef long(*generic_hash)();
-
 generic_hash hash_array[NUMBER_OF_FUNC] = {
 
-	(generic_hash)bit_hash, 
 	(generic_hash)hash_string,
+	(generic_hash)bit_hash, 
 	(generic_hash)hash_string_add,
 	(generic_hash)djb2
 
 };
+
 
 /*ELF hash*/
 long bit_hash(char* string, long n ){

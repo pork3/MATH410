@@ -12,11 +12,6 @@ max size for collision*/
 
 #define LOAD_FACTOR .75f
 
-int prime_array[46] = { 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 
-	43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 
-	109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 
-	181, 191, 193, 197, 199};
-
 typedef struct node{
 	char* key;
 	struct node* next;
@@ -30,7 +25,11 @@ typedef struct mapdata{
 	/*current size */
 	long size;
 	/*threshold before resize*/
-	long threshold;
+	long threshold;	
+	/*int to choose which function*/
+	int hash_func;
+	/*prime number*/
+	int prime;
 } mapdata;
 
 static node* create_node(char* string){
@@ -44,9 +43,27 @@ static node* create_node(char* string){
 	return n;
 }
 
+/*search used by functions using primes*/
+static node* map_search_p(mapdata* map, char* string, long* i,int prime){
+
+	long index = (long)hash_array[0](string, map->capacity, prime);
+	*i = index;
+	node* n ;
+	for (n = map->storearray[index]; n!= NULL; n=n->next)
+		if(strcmp(string , n->key) == 0){
+			return n;
+		}
+	return n;	
+}
+
 /*reference which hash function we want through the function pointer array HERE*/
-static node* map_search_2(mapdata* map, char* string, long* i){
-	long index = hash_string(string, map->capacity, prime_array[7]);
+static node* map_search_2(mapdata* map, char* string, long* i, int hashchoice){
+	long index;
+	if(hashchoice > 0){
+		index = (long)hash_array[hashchoice](string , map->capacity);
+	} else {
+		return NULL;
+	}
 	*i = index;
 	node* n ;
 	for (n = map->storearray[index]; n!= NULL; n=n->next)
@@ -59,8 +76,9 @@ static node* map_search_2(mapdata* map, char* string, long* i){
 static int map_lookup(const Hashmap* h, char* string){
 	int status = 0;
 	long s = 0;
+	mapdata* m = (mapdata*)h->self;
 	/*lookup node using map search*/
-	node* n = map_search_2((mapdata*)h->self, string, &s);
+	node* n = map_search_2(m, string, &s,m->hash_func);
 	if(n == NULL)
 		return status;
 	return status =(int)s;
@@ -72,7 +90,7 @@ static int map_remove(const Hashmap* h, char* string){
 	mapdata* map = (mapdata*) h->self;
 	long index;
 	/*double check to ensure entry is in map*/
-	node* n = map_search_2(map, string, &index);
+	node* n = map_search_2(map, string, &index,map->hash_func);
 	if(n == NULL)
 		return status;
 	node* c;
@@ -107,7 +125,11 @@ static int map_resize(mapdata* map){
 			/*if there is item*/
 			while(n != NULL){
 			node* nxt = n->next;
-			index  = hash_string(n->key , s, prime_array[7]);
+			if(map->hash_func > 0){
+				index = (long)hash_array[map->hash_func](n->key, s);
+			} else {
+				index = (long)hash_array[map->hash_func](n->key,s,map->prime);
+			}
 			n->next = newarr[index];
 			newarr[index] = n;
 			n = nxt;
@@ -123,6 +145,30 @@ static int map_resize(mapdata* map){
 	map->threshold = s * LOAD_FACTOR;
 	return status;
 }
+/*function to insert, specifically dealing with prime numbers, makes automatic testing far easier*/
+static int map_insert_prime(const Hashmap* h, char* string, int prime){
+	int status = 0;
+	mapdata* map = (mapdata*)h->self;
+	if(map->size > map->threshold)
+		(void)map_resize(map);
+
+	long index;
+	node* n = map_search_p(map, string, &index, prime);
+	if( n != NULL){
+		n->count++;
+		status = 1;
+	} else {
+		n = create_node(string);
+	}
+	if(n != NULL){
+		status = 1;
+		n->next = map->storearray[index];
+		map->storearray[index] = n;
+		map->size++;
+	}
+	return status;
+}
+
 
 /*change to take function pointer array as last argument*/
 static int map_insert(const Hashmap* h, char* string){
@@ -131,8 +177,9 @@ static int map_insert(const Hashmap* h, char* string){
 	if(map->size > map->threshold)
 		(void)map_resize(map);
 
+	/*choose hashfunction based */
 	long index;
-	node* n = map_search_2(map, string, &index);
+	node* n = map_search_2(map, string, &index,map->hash_func);
 	if( n != NULL){
 		n->count++;
 		status = 1;
@@ -190,7 +237,7 @@ static long map_coll(const Hashmap* h){
 }
 
 
-const Hashmap* create_hashmap(long capacity){
+const Hashmap* create_hashmap(long capacity, int h_func, int prime){
 	Hashmap* hmap = (Hashmap*)malloc(sizeof(Hashmap));
 	if (hmap != NULL){
 		/*set up private data members 
@@ -212,6 +259,8 @@ const Hashmap* create_hashmap(long capacity){
 				map->capacity = capacity;
 				map->storearray = arr;
 				map->threshold = LOAD_FACTOR * capacity;
+				map->hash_func = h_func;
+				map->prime = prime;
 
 				hmap->self = map;
 				hmap->insert = map_insert;
@@ -221,6 +270,8 @@ const Hashmap* create_hashmap(long capacity){
 				hmap->is_empty = map_is_empty;
 				hmap->del = map_remove;
 				hmap->collisions = map_coll;
+				hmap->insert_prime = map_insert_prime;
+				 /*arbritrary default*/
 				//hmap->prime_insert_test = map_insert_prime_test;
 				/*hashmap test functions*/
 				//hmap->prime_insert_test = map_insert_product;

@@ -1,6 +1,6 @@
 CFLAGS= -W -Wall -g -std=c11 -D_DEFAULT_SOURCE 
 PROGS= maptest
-OBJECTS=hashmap.o maptest.o hashfunc.o
+OBJECTS=hashmap.o hashfunc.o maptest.o 
 
 all: $(PROGS)
 
