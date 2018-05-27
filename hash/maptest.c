@@ -1,5 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
+#include <sys/time.h>
 #include "hash.h"
 #include "hashfxn.h"
 
@@ -75,29 +77,36 @@ int main(int argc , char** argv){
 	char wordbuffer[1024];
 	long wrdin = 0l;
 
-	/*want table size to be power of 2*/
-	Hashmap* h = create_hashmap(1024L);
+
 
 	//if( h != NULL){
 	int w;
 	long j;
-	for(j = 0; j < 1; j++){
+	/*timekeeping */
+	struct timespec stop,start;
+	
+
+	for(j = 0; j < 10; j++){
+	/*want table size to be power of 2*/
+	Hashmap* h = create_hashmap(1024L);
+	clock_gettime(CLOCK_MONOTONIC_RAW , &start);
 		while( (w = strline(buffer,&wrdin,wordbuffer)) >0){
-			printf("word is %s\n", wordbuffer);
-			map_insert(h,wordbuffer, hash_array[1]);
+			//printf("word is %s\n", wordbuffer);
+
+			map_insert(h,wordbuffer, hash_array[2]);
 
 		}
-	}
-		
-
-
-	printf("Size is %d\n",map_size(h));		
-	printf("Collisions are : %d\n",map_collisions(h));
-
+	clock_gettime(CLOCK_MONOTONIC_RAW , &stop);
+	//printf("Collisions %ld\n",map_collisions(h));
+	long delta_us = (stop.tv_sec - start.tv_sec) * 1000000 + (stop.tv_nsec - start.tv_nsec) / 1000;
+	printf("ELF\t%ld\t%ld\t\t%ld\n",map_size(h),map_collisions(h),delta_us);
 	
+	map_destroy(h);
+	wrdin = 0l;
+	}
+
+
 	fclose(f);
 	free(buffer);
-
-	map_destroy(h);
 	return 0;
 }
