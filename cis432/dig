@@ -1,0 +1,107 @@
+Querie to root server
+
+; <<>> DiG 9.13.3 <<>> @a.root-servers.net. cs.uoregon.edu
+; (2 servers found)
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 13914
+;; flags: qr rd; QUERY: 1, ANSWER: 0, AUTHORITY: 6, ADDITIONAL: 8
+;; WARNING: recursion requested but not available
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; QUESTION SECTION:
+;cs.uoregon.edu.			IN	A
+
+;; AUTHORITY SECTION:
+edu.			172800	IN	NS	f.edu-servers.net.
+edu.			172800	IN	NS	a.edu-servers.net.
+edu.			172800	IN	NS	g.edu-servers.net.
+edu.			172800	IN	NS	l.edu-servers.net.
+edu.			172800	IN	NS	c.edu-servers.net.
+edu.			172800	IN	NS	d.edu-servers.net.
+
+;; ADDITIONAL SECTION:
+f.edu-servers.net.	172800	IN	A	192.35.51.30
+a.edu-servers.net.	172800	IN	A	192.5.6.30
+g.edu-servers.net.	172800	IN	A	192.42.93.30
+g.edu-servers.net.	172800	IN	AAAA	2001:503:cc2c::2:36
+l.edu-servers.net.	172800	IN	A	192.41.162.30
+c.edu-servers.net.	172800	IN	A	192.26.92.30
+d.edu-servers.net.	172800	IN	A	192.31.80.30
+
+;; Query time: 76 msec
+;; SERVER: 198.41.0.4#53(198.41.0.4)
+;; WHEN: Fri Oct 12 07:34:09 PDT 2018
+;; MSG SIZE  rcvd: 278
+
+Query to edu authority servers
+
+; <<>> DiG 9.13.3 <<>> @a.edu-servers.net cs.uoregon.edu
+; (2 servers found)
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 3692
+;; flags: qr rd; QUERY: 1, ANSWER: 0, AUTHORITY: 4, ADDITIONAL: 7
+;; WARNING: recursion requested but not available
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; QUESTION SECTION:
+;cs.uoregon.edu.			IN	A
+
+;; AUTHORITY SECTION:
+uoregon.edu.		172800	IN	NS	phloem.uoregon.edu.
+uoregon.edu.		172800	IN	NS	ruminant.uoregon.edu.
+uoregon.edu.		172800	IN	NS	sns-pb.isc.org.
+uoregon.edu.		172800	IN	NS	lsu-bdds1.lsu.edu.
+
+;; ADDITIONAL SECTION:
+phloem.uoregon.edu.	172800	IN	A	128.223.32.35
+phloem.uoregon.edu.	172800	IN	AAAA	2001:468:d01:20::80df:2023
+ruminant.uoregon.edu.	172800	IN	A	128.223.60.22
+ruminant.uoregon.edu.	172800	IN	AAAA	2001:468:d01:3c::80df:3c16
+lsu-bdds1.lsu.edu.	172800	IN	A	192.16.176.90
+lsu-bdds1.lsu.edu.	172800	IN	AAAA	2620:105:b050:1550::90
+
+;; Query time: 59 msec
+;; SERVER: 192.5.6.30#53(192.5.6.30)
+;; WHEN: Fri Oct 12 07:34:51 PDT 2018
+;; MSG SIZE  rcvd: 275
+
+Query to organization nameserver
+
+; <<>> DiG 9.13.3 <<>> @ds1.cs.uoregon.edu cs.uoregon.edu
+; (2 servers found)
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 65149
+;; flags: qr aa rd; QUERY: 1, ANSWER: 1, AUTHORITY: 4, ADDITIONAL: 5
+;; WARNING: recursion requested but not available
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+; COOKIE: bfc76a675ad93bae886852f15bc0b1caa48a0737dcf90d03 (good)
+;; QUESTION SECTION:
+;cs.uoregon.edu.			IN	A
+
+;; ANSWER SECTION:
+cs.uoregon.edu.		3600	IN	A	128.223.142.251
+
+;; AUTHORITY SECTION:
+cs.uoregon.edu.		43200	IN	NS	ds2.cs.uoregon.edu.
+cs.uoregon.edu.		43200	IN	NS	ds1.cs.uoregon.edu.
+cs.uoregon.edu.		43200	IN	NS	sns-pb.isc.org.
+cs.uoregon.edu.		43200	IN	NS	phloem.uoregon.edu.
+
+;; ADDITIONAL SECTION:
+ds1.cs.uoregon.edu.	3600	IN	AAAA	2607:8400:205e:40::80df:408
+ds2.cs.uoregon.edu.	3600	IN	AAAA	2607:8400:205e:40::80df:409
+ds1.cs.uoregon.edu.	3600	IN	A	128.223.4.8
+ds2.cs.uoregon.edu.	3600	IN	A	128.223.4.9
+
+;; Query time: 2 msec
+;; SERVER: 2607:8400:205e:40::80df:408#53(2607:8400:205e:40::80df:408)
+;; WHEN: Fri Oct 12 07:38:02 PDT 2018
+;; MSG SIZE  rcvd: 260
+
